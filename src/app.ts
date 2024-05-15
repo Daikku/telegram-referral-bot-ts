@@ -3,7 +3,7 @@ import { config } from "./config";
 
 const bot = new Telegraf(config.botToken as string)
 
-bot.start((ctx) => {
+bot.start((ctx): void => {
     ctx.reply('Hello!')
 })
 
