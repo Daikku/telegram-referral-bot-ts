@@ -1,0 +1,21 @@
+version: '3.8'
+services:
+  bot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./src:/home/app/src
+    depends_on:
+      - mongo
+    environment:
+      - BOT_TOKEN=${BOT_TOKEN}
+      - MONGODB_URI=${MONGO_URI}
+    command: npm run dev
+  mongo:
+    image: mongo
+    volumes:
+      - mongo-data:/data/db
+
+volumes:
+  mongo-data:
