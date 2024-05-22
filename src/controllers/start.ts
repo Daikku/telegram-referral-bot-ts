@@ -1,5 +1,6 @@
 import { Context } from 'telegraf';
-import { User } from "../models/user";
+import { User, IUser } from "../models/user";
+import { sendReferralMessage } from "./referral";
 
 interface MyContext extends Context {
     payload?: string;
@@ -10,28 +11,18 @@ export const startCommand = async (ctx: MyContext): Promise<void> => {
         const telegramId = ctx.from.id as number;
         const referredBy = Number(ctx.payload) || null;
 
-        let user = await User.findOne({ telegramId });
+        let user: IUser | null = await User.findOne({ telegramId }).lean<IUser>();
+
         if (!user) {
-            user = new User({
+            await User.create({
                 telegramId: telegramId,
-                referralLink: `https://t.me/${ ctx.botInfo.username }?start=${ telegramId }`,
+                referralLink: `https://t.me/${ctx.botInfo.username}?start=${telegramId}`,
                 referredBy: referredBy
             });
-            await user.save();
         }
 
-        if (referredBy) {
-            await User.updateOne({ telegramId: referredBy },
-                { $addToSet: { directReferrals: telegramId },
-                         $inc: {balance: 10}
-                });
-
-            const referrer = await User.findOne({telegramId: referredBy});
-            await ctx.reply(`Добро пожаловать! Вас пригласил ${ referrer?.telegramId }`)
-            await ctx.telegram.sendMessage(
-                referredBy,
-                `Новый пользователь ${ctx.from.first_name} присоединился`
-            )
+        if (referredBy !== telegramId && referredBy !== null) {
+            await sendReferralMessage(telegramId, referredBy, ctx)
         }
 
         await ctx.reply(`Добро пожаловать!`, {
