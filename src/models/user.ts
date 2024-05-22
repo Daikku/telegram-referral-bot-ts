@@ -1,6 +1,7 @@
 import { Schema, model, Document } from 'mongoose';
+import { setIndexes } from "../utils/database";
 
-interface IUser extends Document {
+export interface IUser extends Document {
     telegramId: number;
     referralLink: string;
     referredBy: number;
@@ -8,16 +9,19 @@ interface IUser extends Document {
     indirectReferrals: number[];
     balance: number;
     language: string;
+    isSubscribe: boolean;
 }
 
 const userSchema = new Schema<IUser>({
-    telegramId: { type: Number, unique: true, required: true },
+    telegramId: { type: Number, unique: true, required: true, index: true},
     referralLink: { type: String, unique: true },
     referredBy: { type: Number, default: null},
     directReferrals: [{ type: Number }],
     indirectReferrals: [{ type: Number }],
     balance: { type: Number , default: 0},
-    language: { type: String, default: "ru" }
+    language: { type: String, default: "ru" },
+    isSubscribe: { type: Boolean, default: false }
 });
 
+setIndexes(userSchema);
 export const User = model<IUser>("User", userSchema);
