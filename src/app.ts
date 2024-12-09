@@ -2,12 +2,12 @@ import { Telegraf} from "telegraf";
 import { config } from "./config";
 import { connectToDatabase } from "./database";
 import { startCommand } from "./controllers/start";
-import { referralCommand } from "./controllers/referral";
+import { referralLinkCommand } from "./controllers/referral";
 
 const bot = new Telegraf(config.botToken as string);
 
 bot.start(startCommand);
-bot.action('referral_link', referralCommand);
+bot.action('referral_link', referralLinkCommand);
 
 connectToDatabase().then((): void =>{
     bot.launch()

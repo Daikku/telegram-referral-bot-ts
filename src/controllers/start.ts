@@ -1,6 +1,7 @@
 import { Context } from 'telegraf';
 import { User, IUser } from "../models/user";
 import { sendReferralMessage } from "./referral";
+import { checkSubscription } from "./subscription";
 
 interface MyContext extends Context {
     payload?: string;
@@ -24,6 +25,9 @@ export const startCommand = async (ctx: MyContext): Promise<void> => {
         if (referredBy !== telegramId && referredBy !== null) {
             await sendReferralMessage(telegramId, referredBy, ctx)
         }
+
+        await checkSubscription(ctx);
+
 
         await ctx.reply(`Добро пожаловать!`, {
             reply_markup: {
